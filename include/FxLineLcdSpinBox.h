@@ -1,9 +1,9 @@
 /*
- * update_event.h - signal GUI updates
+ * FxLineLcdSpinBox.h - a specialization of LcdSpnBox for setting FX channels
  *
- * Copyright (c) 2007 Javier Serrano Polo <jasp00/at/users.sourceforge.net>
+ * Copyright (c) 2004-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,23 +22,32 @@
  *
  */
 
+#ifndef FX_LINE_LCD_SPIN_BOX_H
+#define FX_LINE_LCD_SPIN_BOX_H
 
-#ifndef UPDATE_EVENT_H
-#define UPDATE_EVENT_H
+#include "LcdSpinBox.h"
 
-#include "custom_events.h"
-
+class TrackView;
 
 
-class updateEvent : public QEvent
+class FxLineLcdSpinBox : public LcdSpinBox
 {
+	Q_OBJECT
 public:
-	updateEvent() :
-		QEvent( (QEvent::Type)customEvents::GUI_UPDATE )
-	{
-	}
+	FxLineLcdSpinBox(int numDigits, QWidget * parent, const QString& name, TrackView * tv = NULL) :
+		LcdSpinBox(numDigits, parent, name), m_tv(tv)
+	{}
+	virtual ~FxLineLcdSpinBox() {}
 
-} ;
+	void setTrackView(TrackView * tv);
 
+protected:
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void contextMenuEvent(QContextMenuEvent* event) override;
+
+private:
+	TrackView * m_tv;
+
+};
 
 #endif

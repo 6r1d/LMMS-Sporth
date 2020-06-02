@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2006-2008 Javier Serrano Polo <jasp00/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -52,11 +52,14 @@ class TimeLineWidget;
 class AutomationEditor : public QWidget, public JournallingObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QColor gridColor READ gridColor WRITE setGridColor)
+	Q_PROPERTY(QColor barLineColor READ barLineColor WRITE setBarLineColor)
+	Q_PROPERTY(QColor beatLineColor READ beatLineColor WRITE setBeatLineColor)
+	Q_PROPERTY(QColor lineColor READ lineColor WRITE setLineColor)
 	Q_PROPERTY(QColor vertexColor READ vertexColor WRITE setVertexColor)
 	Q_PROPERTY(QBrush scaleColor READ scaleColor WRITE setScaleColor)
 	Q_PROPERTY(QBrush graphColor READ graphColor WRITE setGraphColor)
 	Q_PROPERTY(QColor crossColor READ crossColor WRITE setCrossColor)
+	Q_PROPERTY(QColor backgroundShade READ backgroundShade WRITE setBackgroundShade)
 public:
 	void setCurrentPattern(AutomationPattern * new_pattern);
 
@@ -70,24 +73,30 @@ public:
 		return m_pattern != nullptr;
 	}
 
-	virtual void saveSettings(QDomDocument & doc, QDomElement & parent);
-	virtual void loadSettings(const QDomElement & parent);
-	QString nodeName() const
+	void saveSettings(QDomDocument & doc, QDomElement & parent) override;
+	void loadSettings(const QDomElement & parent) override;
+	QString nodeName() const override
 	{
 		return "automationeditor";
 	}
 
 	// qproperty access methods
-	QColor gridColor() const;
+	QColor barLineColor() const;
+	void setBarLineColor(const QColor & c);
+	QColor beatLineColor() const;
+	void setBeatLineColor(const QColor & c);
+	QColor lineColor() const;
+	void setLineColor(const QColor & c);
 	QBrush graphColor() const;
+	void setGraphColor(const QBrush & c);
 	QColor vertexColor() const;
+	void setVertexColor(const QColor & c);
 	QBrush scaleColor() const;
+	void setScaleColor(const QBrush & c);
 	QColor crossColor() const;
-	void setGridColor(const QColor& c);
-	void setGraphColor(const QBrush& c);
-	void setVertexColor(const QColor& c);
-	void setScaleColor(const QBrush& c);
-	void setCrossColor(const QColor& c);
+	void setCrossColor(const QColor & c);
+	QColor backgroundShade() const;
+	void setBackgroundShade(const QColor & c);
 
 	enum EditModes
 	{
@@ -105,25 +114,25 @@ public slots:
 protected:
 	typedef AutomationPattern::timeMap timeMap;
 
-	virtual void keyPressEvent(QKeyEvent * ke);
-	virtual void leaveEvent(QEvent * e);
-	virtual void mousePressEvent(QMouseEvent * mouseEvent);
-	virtual void mouseReleaseEvent(QMouseEvent * mouseEvent);
-	virtual void mouseMoveEvent(QMouseEvent * mouseEvent);
-	virtual void paintEvent(QPaintEvent * pe);
-	virtual void resizeEvent(QResizeEvent * re);
-	virtual void wheelEvent(QWheelEvent * we);
+	void keyPressEvent(QKeyEvent * ke) override;
+	void leaveEvent(QEvent * e) override;
+	void mousePressEvent(QMouseEvent * mouseEvent) override;
+	void mouseReleaseEvent(QMouseEvent * mouseEvent) override;
+	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
+	void paintEvent(QPaintEvent * pe) override;
+	void resizeEvent(QResizeEvent * re) override;
+	void wheelEvent(QWheelEvent * we) override;
 
 	float getLevel( int y );
 	int xCoordOfTick( int tick );
-	int yCoordOfLevel( float level );
-	inline void drawLevelTick( QPainter & p, int tick,
-					float value, bool is_selected );
+	float yCoordOfLevel( float level );
+	inline void drawLevelTick( QPainter & p, int tick, float value);// bool is_selected ); //NEEDS Change in CSS
 	void removeSelection();
 	void selectAll();
 	void getSelectedValues(timeMap & selected_values );
 
 	void drawLine( int x0, float y0, int x1, float y1 );
+	void removePoints( int x0, int x1 );
 
 protected slots:
 	void play();
@@ -167,8 +176,8 @@ private:
 	static const int TOP_MARGIN = 16;
 
 	static const int DEFAULT_Y_DELTA = 6;
-	static const int DEFAULT_STEPS_PER_TACT = 16;
-	static const int DEFAULT_PPT = 12 * DEFAULT_STEPS_PER_TACT;
+	static const int DEFAULT_STEPS_PER_BAR = 16;
+	static const int DEFAULT_PPB = 12 * DEFAULT_STEPS_PER_BAR;
 
 	static const int VALUES_WIDTH = 64;
 
@@ -221,7 +230,7 @@ private:
 	float m_drawLastLevel;
 	tick_t m_drawLastTick;
 
-	int m_ppt;
+	int m_ppb;
 	int m_y_delta;
 	bool m_y_auto;
 
@@ -231,6 +240,8 @@ private:
 
 	EditModes m_editMode;
 
+	bool m_mouseDownLeft;
+	bool m_mouseDownRight; //true if right click is being held down
 
 	TimeLineWidget * m_timeLine;
 	bool m_scrollBack;
@@ -239,11 +250,14 @@ private:
 	void drawAutomationPoint( QPainter & p, timeMap::iterator it );
 	bool inBBEditor();
 
-	QColor m_gridColor;
+	QColor m_barLineColor;
+	QColor m_beatLineColor;
+	QColor m_lineColor;
 	QBrush m_graphColor;
 	QColor m_vertexColor;
 	QBrush m_scaleColor;
 	QColor m_crossColor;
+	QColor m_backgroundShade;
 
 	friend class AutomationEditorWindow;
 
@@ -269,14 +283,14 @@ public:
 	void setCurrentPattern(AutomationPattern* pattern);
 	const AutomationPattern* currentPattern();
 
-	virtual void dropEvent( QDropEvent * _de );
-	virtual void dragEnterEvent( QDragEnterEvent * _dee );
+	void dropEvent( QDropEvent * _de ) override;
+	void dragEnterEvent( QDragEnterEvent * _dee ) override;
 
 	void open(AutomationPattern* pattern);
 
 	AutomationEditor* m_editor;
 
-	QSize sizeHint() const;
+	QSize sizeHint() const override;
 
 public slots:
 	void clearCurrentPattern();
@@ -284,9 +298,12 @@ public slots:
 signals:
 	void currentPatternChanged();
 
+protected:
+	void focusInEvent(QFocusEvent * event) override;
+
 protected slots:
-	void play();
-	void stop();
+	void play() override;
+	void stop() override;
 
 private slots:
 	void updateWindowTitle();

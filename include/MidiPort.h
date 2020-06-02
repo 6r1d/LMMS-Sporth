@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2005-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -103,10 +103,10 @@ public:
 	void processOutEvent( const MidiEvent& event, const MidiTime& time = MidiTime() );
 
 
-	virtual void saveSettings( QDomDocument& doc, QDomElement& thisElement );
-	virtual void loadSettings( const QDomElement& thisElement );
+	void saveSettings( QDomDocument& doc, QDomElement& thisElement ) override;
+	void loadSettings( const QDomElement& thisElement ) override;
 
-	virtual QString nodeName() const
+	QString nodeName() const override
 	{
 		return "midiport";
 	}
@@ -123,6 +123,8 @@ public:
 	{
 		return m_writablePorts;
 	}
+
+	void invalidateCilent();
 
 	MidiPortMenu* m_readablePortsMenu;
 	MidiPortMenu* m_writablePortsMenu;

@@ -5,7 +5,7 @@
  * Copyright (c) 2008-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * Copyright (c) 2006-2008 Javier Serrano Polo <jasp00/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -38,7 +38,7 @@ class MidiTime;
 
 
 
-class EXPORT AutomationPattern : public TrackContentObject
+class LMMS_EXPORT AutomationPattern : public TrackContentObject
 {
 	Q_OBJECT
 public:
@@ -54,11 +54,12 @@ public:
 
 	AutomationPattern( AutomationTrack * _auto_track );
 	AutomationPattern( const AutomationPattern & _pat_to_copy );
-	virtual ~AutomationPattern();
+	virtual ~AutomationPattern() = default;
 
 	bool addObject( AutomatableModel * _obj, bool _search_dup = true );
 
 	const AutomatableModel * firstObject() const;
+	const objectVector& objects() const;
 
 	// progression-type stuff
 	inline ProgressionTypes progressionType() const
@@ -76,14 +77,19 @@ public:
 	MidiTime timeMapLength() const;
 	void updateLength();
 
-	MidiTime putValue( const MidiTime & _time, const float _value,
-						const bool _quant_pos = true );
+	MidiTime putValue( const MidiTime & time,
+				const float value,
+				const bool quantPos = true,
+				const bool ignoreSurroundingPoints = true );
 
-	void removeValue( const MidiTime & _time,
-					  const bool _quant_pos = true );
+	void removeValue( const MidiTime & time );
 
-	MidiTime setDragValue( const MidiTime & _time, const float _value,
-						   const bool _quant_pos = true );
+	void recordValue(MidiTime time, float value);
+
+	MidiTime setDragValue( const MidiTime & time,
+				const float value,
+				const bool quantPos = true,
+				const bool controlKey = false );
 
 	void applyDragValue();
 
@@ -134,15 +140,13 @@ public:
 	const QString name() const;
 
 	// settings-management
-	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
-	virtual void loadSettings( const QDomElement & _this );
+	void saveSettings( QDomDocument & _doc, QDomElement & _parent ) override;
+	void loadSettings( const QDomElement & _this ) override;
 
 	static const QString classNodeName() { return "automationpattern"; }
-	QString nodeName() const { return classNodeName(); }
+	QString nodeName() const override { return classNodeName(); }
 
-	void processMidiTime( const MidiTime & _time );
-
-	virtual TrackContentObjectView * createView( TrackView * _tv );
+	TrackContentObjectView * createView( TrackView * _tv ) override;
 
 
 	static bool isAutomated( const AutomatableModel * _m );

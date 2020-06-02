@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2004-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -24,10 +24,6 @@
 
 #ifndef MIXER_H
 #define MIXER_H
-
-#include "denormals.h"
-
-#include "lmmsconfig.h"
 
 #include <QtCore/QMutex>
 #include <QtCore/QThread>
@@ -70,7 +66,7 @@ const Octaves BaseOctave = DefaultOctave;
 class MixerWorkerThread;
 
 
-class EXPORT Mixer : public QObject
+class LMMS_EXPORT Mixer : public QObject
 {
 	Q_OBJECT
 public:
@@ -159,9 +155,13 @@ public:
 
 	void initDevices();
 	void clear();
+	void clearNewPlayHandles();
 
 
 	// audio-device-stuff
+
+	// Returns the current audio device's name. This is not necessarily
+	// the user's preferred audio device, in case you were thinking that.
 	inline const QString & audioDevName() const
 	{
 		return m_audioDevName;
@@ -171,10 +171,15 @@ public:
 		return m_audioDevStartFailed;
 	}
 
-	void setAudioDevice( AudioDevice * _dev );
+	//! Set new audio device. Old device will be deleted,
+	//! unless it's stored using storeAudioDevice
+	void setAudioDevice( AudioDevice * _dev , bool startNow );
+	//! See overloaded function
 	void setAudioDevice( AudioDevice * _dev,
 				const struct qualitySettings & _qs,
-							bool _needs_fifo );
+				bool _needs_fifo,
+				bool startNow );
+	void storeAudioDevice();
 	void restoreAudioDevice();
 	inline AudioDevice * audioDev()
 	{
@@ -272,7 +277,13 @@ public:
 	}
 
 
-	void getPeakValues( sampleFrame * _ab, const f_cnt_t _frames, float & peakLeft, float & peakRight ) const;
+	struct StereoSample
+	{
+		StereoSample(sample_t _left, sample_t _right) : left(_left), right(_right) {}
+		sample_t left;
+		sample_t right;
+	};
+	StereoSample getPeakValues(sampleFrame * _ab, const f_cnt_t _frames) const;
 
 
 	bool criticalXRuns() const;
@@ -304,8 +315,12 @@ public:
 	inline bool isMetronomeActive() const { return m_metronomeActive; }
 	inline void setMetronomeActive(bool value = true) { m_metronomeActive = value; }
 
+	//! Block until a change in model can be done (i.e. wait for audio thread)
 	void requestChangeInModel();
 	void doneChangeInModel();
+
+	static bool isAudioDevNameValid(QString name);
+	static bool isMidiDevNameValid(QString name);
 
 
 signals:
@@ -330,7 +345,7 @@ private:
 		fifo * m_fifo;
 		volatile bool m_writing;
 
-		virtual void run();
+		void run() override;
 
 		void write( surroundSampleFrame * buffer );
 
@@ -352,9 +367,11 @@ private:
 
 	void clearInternal();
 
+	//! Called by the audio thread to give control to other threads,
+	//! such that they can do changes in the model (like e.g. removing effects)
 	void runChangesInModel();
 
-
+	bool m_renderOnly;
 
 	QVector<AudioPort *> m_audioPorts;
 
@@ -391,6 +408,7 @@ private:
 	bool m_isProcessing;
 
 	// audio device stuff
+	void doSetAudioDevice( AudioDevice *_dev );
 	AudioDevice * m_audioDev;
 	AudioDevice * m_oldAudioDev;
 	QString m_audioDevName;
@@ -422,6 +440,7 @@ private:
 
 	friend class LmmsCore;
 	friend class MixerWorkerThread;
+	friend class ProjectRenderer;
 
 } ;
 

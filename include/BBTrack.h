@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2004-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -41,11 +41,11 @@ class BBTCO : public TrackContentObject
 {
 public:
 	BBTCO( Track * _track );
-	virtual ~BBTCO();
+	virtual ~BBTCO() = default;
 
-	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
-	virtual void loadSettings( const QDomElement & _this );
-	inline virtual QString nodeName() const
+	void saveSettings( QDomDocument & _doc, QDomElement & _parent ) override;
+	void loadSettings( const QDomElement & _this ) override;
+	inline QString nodeName() const override
 	{
 		return( "bbtco" );
 	}
@@ -72,7 +72,7 @@ public:
 
 	int bbTrackIndex();
 
-	virtual TrackContentObjectView * createView( TrackView * _tv );
+	TrackContentObjectView * createView( TrackView * _tv ) override;
 
 private:
 	QColor m_color;
@@ -90,7 +90,7 @@ class BBTCOView : public TrackContentObjectView
 	Q_OBJECT
 public:
 	BBTCOView( TrackContentObject * _tco, TrackView * _tv );
-	virtual ~BBTCOView();
+	virtual ~BBTCOView() = default;
 
 	QColor color() const
 	{
@@ -98,6 +98,8 @@ public:
 	}
 	void setColor( QColor _new_color );
 
+public slots:
+	void update() override;
 
 protected slots:
 	void openInBBEditor();
@@ -108,9 +110,9 @@ protected slots:
 
 
 protected:
-	virtual void paintEvent( QPaintEvent * pe );
-	virtual void mouseDoubleClickEvent( QMouseEvent * _me );
-	virtual void constructContextMenu( QMenu * );
+	void paintEvent( QPaintEvent * pe ) override;
+	void mouseDoubleClickEvent( QMouseEvent * _me ) override;
+	void constructContextMenu( QMenu * ) override;
 
 
 private:
@@ -123,7 +125,7 @@ private:
 
 
 
-class EXPORT BBTrack : public Track
+class LMMS_EXPORT BBTrack : public Track
 {
 	Q_OBJECT
 public:
@@ -131,13 +133,13 @@ public:
 	virtual ~BBTrack();
 
 	virtual bool play( const MidiTime & _start, const fpp_t _frames,
-						const f_cnt_t _frame_base, int _tco_num = -1 );
-	virtual TrackView * createView( TrackContainerView* tcv );
-	virtual TrackContentObject * createTCO( const MidiTime & _pos );
+						const f_cnt_t _frame_base, int _tco_num = -1 ) override;
+	TrackView * createView( TrackContainerView* tcv ) override;
+	TrackContentObject * createTCO( const MidiTime & _pos ) override;
 
 	virtual void saveTrackSpecificSettings( QDomDocument & _doc,
-							QDomElement & _parent );
-	virtual void loadTrackSpecificSettings( const QDomElement & _this );
+							QDomElement & _parent ) override;
+	void loadTrackSpecificSettings( const QDomElement & _this ) override;
 
 	static BBTrack * findBBTrack( int _bb_num );
 	static void swapBBTracks( Track * _track1, Track * _track2 );
@@ -182,7 +184,7 @@ public:
 	}
 
 protected:
-	inline virtual QString nodeName() const
+	inline QString nodeName() const override
 	{
 		return( "bbtrack" );
 	}
@@ -209,7 +211,7 @@ public:
 	BBTrackView( BBTrack* bbt, TrackContainerView* tcv );
 	virtual ~BBTrackView();
 
-	virtual bool close();
+	bool close() override;
 
 	const BBTrack * getBBTrack() const
 	{

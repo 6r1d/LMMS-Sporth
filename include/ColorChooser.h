@@ -1,9 +1,8 @@
-/*
- * export.h - macros for export-declarations
+/* ColorChooser.h - declaration and definition of ColorChooser class.
  *
- * Copyright (c) 2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2019 CYBERDEViLNL <cyberdevilnl/at/protonmail/dot/ch>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,26 +21,21 @@
  *
  */
 
+#include <QColorDialog>
+#include <QApplication>
+#include <QKeyEvent>
 
-#ifndef EXPORT_H
-#define EXPORT_H
+class ColorChooser: public QColorDialog
+{
+public:
+	ColorChooser(const QColor &initial, QWidget *parent): QColorDialog(initial, parent) {};
+	ColorChooser(QWidget *parent): QColorDialog(parent) {};
 
-#include "lmmsconfig.h"
-
-#ifdef LMMS_BUILD_WIN32
-
-#ifdef PLUGIN_NAME
-#define EXPORT __declspec(dllimport)
-#define PLUGIN_EXPORT __declspec(dllexport)
-#else
-#define EXPORT __declspec(dllexport)
-#endif
-
-#else
-
-#define EXPORT
-#define PLUGIN_EXPORT
-
-#endif
-
-#endif
+protected:
+	// Forward key events to the parent to prevent stuck notes when the dialog gets focus
+	void keyReleaseEvent(QKeyEvent *event) override
+	{
+		QKeyEvent ke(*event);
+		QApplication::sendEvent(parentWidget(), &ke);
+	}
+};

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2008-2012 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -57,7 +57,7 @@
 class TextFloat;
 
 
-class EXPORT Fader : public QWidget, public FloatModelView
+class LMMS_EXPORT Fader : public QWidget, public FloatModelView
 {
 	Q_OBJECT
 public:
@@ -68,7 +68,7 @@ public:
 
 	Fader( FloatModel * _model, const QString & _name, QWidget * _parent );
 	Fader( FloatModel * _model, const QString & _name, QWidget * _parent, QPixmap * back, QPixmap * leds, QPixmap * knob );
-	virtual ~Fader();
+	virtual ~Fader() = default;
 
 	void init(FloatModel * model, QString const & name);
 
@@ -109,13 +109,13 @@ public:
 	}
 
 private:
-	virtual void contextMenuEvent( QContextMenuEvent * _me );
-	virtual void mousePressEvent( QMouseEvent *ev );
-	virtual void mouseDoubleClickEvent( QMouseEvent* mouseEvent );
-	virtual void mouseMoveEvent( QMouseEvent *ev );
-	virtual void mouseReleaseEvent( QMouseEvent * _me );
-	virtual void wheelEvent( QWheelEvent *ev );
-	virtual void paintEvent( QPaintEvent *ev );
+	void contextMenuEvent( QContextMenuEvent * _me ) override;
+	void mousePressEvent( QMouseEvent *ev ) override;
+	void mouseDoubleClickEvent( QMouseEvent* mouseEvent ) override;
+	void mouseMoveEvent( QMouseEvent *ev ) override;
+	void mouseReleaseEvent( QMouseEvent * _me ) override;
+	void wheelEvent( QWheelEvent *ev ) override;
+	void paintEvent( QPaintEvent *ev ) override;
 
 	inline bool clips(float const & value) const { return value >= 1.0f; }
 

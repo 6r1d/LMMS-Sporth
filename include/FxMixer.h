@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2008-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -30,6 +30,7 @@
 #include "JournallingObject.h"
 #include "ThreadableJob.h"
 
+#include <atomic>
 
 class FxRoute;
 typedef QVector<FxRoute *> FxRouteVector;
@@ -66,16 +67,16 @@ class FxChannel : public ThreadableJob
 		// pointers to other channels that send to this one
 		FxRouteVector m_receives;
 
-		virtual bool requiresProcessing() const { return true; }
+		bool requiresProcessing() const override { return true; }
 		void unmuteForSolo();
 
 	
-		QAtomicInt m_dependenciesMet;
+		std::atomic_int m_dependenciesMet;
 		void incrementDeps();
 		void processed();
 		
 	private:
-		virtual void doProcessing();
+		void doProcessing() override;
 };
 
 
@@ -120,7 +121,7 @@ class FxRoute : public QObject
 };
 
 
-class EXPORT FxMixer : public Model, public JournallingObject
+class LMMS_EXPORT FxMixer : public Model, public JournallingObject
 {
 	Q_OBJECT
 public:
@@ -132,10 +133,10 @@ public:
 	void prepareMasterMix();
 	void masterMix( sampleFrame * _buf );
 
-	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
-	virtual void loadSettings( const QDomElement & _this );
+	void saveSettings( QDomDocument & _doc, QDomElement & _parent ) override;
+	void loadSettings( const QDomElement & _this ) override;
 
-	virtual QString nodeName() const
+	QString nodeName() const override
 	{
 		return "fxmixer";
 	}

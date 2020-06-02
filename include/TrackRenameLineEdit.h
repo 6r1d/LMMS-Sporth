@@ -1,9 +1,10 @@
 /*
- * custom_events.h - custom event types list
+ * TrackRenameLineEdit.h - class TrackRenameLineEdit
  *
- * Copyright (c) 2007 Javier Serrano Polo <jasp00/at/users.sourceforge.net>
+ * Copyright (c) 2004-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2017 Alexandre Almeida <http://m374lx.users.sourceforge.net/>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -23,24 +24,23 @@
  */
 
 
-#ifndef CUSTOM_EVENTS_H
-#define CUSTOM_EVENTS_H
+#ifndef TRACK_RENAME_LINE_EDIT_H
+#define TRACK_RENAME_LINE_EDIT_H
 
+#include <QLineEdit>
 
-#include <QtCore/QEvent>
-
-
-namespace customEvents
+class TrackRenameLineEdit : public QLineEdit
 {
-
-	enum Type
-	{
-		GUI_UPDATE = QEvent::User
-	} ;
-
-}
-
-
-
+	Q_OBJECT
+public:
+	TrackRenameLineEdit( QWidget * parent );
+	void show();
+	
+protected:
+	void keyPressEvent( QKeyEvent * ke ) override;
+	
+private:
+	QString m_oldName;
+} ;
 
 #endif

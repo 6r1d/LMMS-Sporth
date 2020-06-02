@@ -1,9 +1,9 @@
 /*
- * VisualizationWidget.h - widget for visualization of sound-data
+ * Oscilloscope.h
  *
  * Copyright (c) 2005-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of"the GNU General Public
@@ -23,8 +23,8 @@
  */
 
 
-#ifndef _VISUALIZATION_WIDGET
-#define _VISUALIZATION_WIDGET
+#ifndef _OSCILLOSCOPE
+#define _OSCILLOSCOPE
 
 #include <QWidget>
 #include <QPixmap>
@@ -32,38 +32,50 @@
 #include "lmms_basics.h"
 
 
-class VisualizationWidget : public QWidget
+class Oscilloscope : public QWidget
 {
 	Q_OBJECT
 public:
-	enum visualizationTypes
-	{
-		Simple		// add more here
-	} ;
+	Q_PROPERTY( QColor normalColor READ normalColor WRITE setNormalColor )
+	Q_PROPERTY( QColor warningColor READ warningColor WRITE setWarningColor )
+	Q_PROPERTY( QColor clippingColor READ clippingColor WRITE setClippingColor )
 
-	VisualizationWidget( const QPixmap & _bg, QWidget * _parent,
-					visualizationTypes _vtype = Simple );
-	virtual ~VisualizationWidget();
+	Oscilloscope( QWidget * _parent );
+	virtual ~Oscilloscope();
 
 	void setActive( bool _active );
 
+	QColor const & normalColor() const;
+	void setNormalColor(QColor const & normalColor);
+
+	QColor const & warningColor() const;
+	void setWarningColor(QColor const & warningColor);
+
+	QColor const & clippingColor() const;
+	void setClippingColor(QColor const & clippingColor);
+
 
 protected:
-	virtual void paintEvent( QPaintEvent * _pe );
-	virtual void mousePressEvent( QMouseEvent * _me );
+	void paintEvent( QPaintEvent * _pe ) override;
+	void mousePressEvent( QMouseEvent * _me ) override;
 
 
 protected slots:
 	void updateAudioBuffer( const surroundSampleFrame * buffer );
 
+private:
+	QColor const & determineLineColor(float level) const;
 
 private:
-	QPixmap s_background;
+	QPixmap m_background;
 	QPointF * m_points;
 
 	sampleFrame * m_buffer;
 	bool m_active;
 
+	QColor m_normalColor;
+	QColor m_warningColor;
+	QColor m_clippingColor;
 } ;
 
 #endif

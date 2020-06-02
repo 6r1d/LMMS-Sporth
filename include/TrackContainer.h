@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
- * This file is part of LMMS - http://lmms.io
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -37,7 +37,7 @@ class InstrumentTrack;
 class TrackContainerView;
 
 
-class EXPORT TrackContainer : public Model, public JournallingObject
+class LMMS_EXPORT TrackContainer : public Model, public JournallingObject
 {
 	Q_OBJECT
 public:
@@ -51,9 +51,9 @@ public:
 	TrackContainer();
 	virtual ~TrackContainer();
 
-	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
+	void saveSettings( QDomDocument & _doc, QDomElement & _parent ) override;
 
-	virtual void loadSettings( const QDomElement & _this );
+	void loadSettings( const QDomElement & _this ) override;
 
 
 	virtual AutomationPattern * tempoAutomationPattern()
@@ -93,11 +93,14 @@ public:
 		return m_TrackContainerType;
 	}
 
+	virtual AutomatedValueMap automatedValuesAt(MidiTime time, int tcoNum = -1) const;
 
 signals:
 	void trackAdded( Track * _track );
 
 protected:
+	static AutomatedValueMap automatedValuesFromTracks(const TrackList &tracks, MidiTime timeStart, int tcoNum = -1);
+
 	mutable QReadWriteLock m_tracksMutex;
 
 private:
@@ -121,7 +124,7 @@ public:
 	{
 	}
 
-	virtual QString nodeName() const
+	QString nodeName() const override
 	{
 		return "DummyTrackContainer";
 	}
